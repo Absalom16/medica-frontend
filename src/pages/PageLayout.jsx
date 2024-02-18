@@ -4,7 +4,16 @@ import Footer from "../components/Footer";
 
 export default function PageLayout() {
   return (
-    <div className="flex flex-col justify-between min-h-screen">
+    <div
+      // className="flex flex-col justify-between min-h-screen"
+      style={{
+        // backgroundColor: "red",
+        backgroundImage: `url('../images/pexels-pixabay-139398.jpg')`, // Replace 'path_to_your_image' with the actual path to your image
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        position: "relative",
+      }}
+    >
       <PageNav />
       <div
         style={{
