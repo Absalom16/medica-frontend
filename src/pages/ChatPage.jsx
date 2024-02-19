@@ -49,7 +49,10 @@ function ChatPage() {
             {/* Sidebar content here */}
             <Grid container spacing={2}>
               <Grid item xs={12} style={{ margin: "10px" }}>
-                <Button variant="contained" style={{ width: "100%" }}>
+                <Button
+                  variant="contained"
+                  style={{ width: "100%", backgroundColor: "#374151" }}
+                >
                   <span style={{ padding: "10px" }}>
                     <FontAwesomeIcon
                       icon={faPlus}
@@ -60,7 +63,10 @@ function ChatPage() {
                 </Button>
               </Grid>
               <Grid item xs={12} style={{ margin: "10px" }}>
-                <Button variant="contained" style={{ width: "100%" }}>
+                <Button
+                  variant="contained"
+                  style={{ width: "100%", backgroundColor: "#374151" }}
+                >
                   <span style={{ padding: "10px" }}>
                     <FontAwesomeIcon
                       icon={faHistory}
@@ -151,6 +157,7 @@ function ChatPage() {
               placeholder="Type your message..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              style={{ backgroundColor: "white" }}
             />
             <IconButton color="primary" onClick={handleSendMessage}>
               <FontAwesomeIcon icon={faPaperPlane} size="2x" />
