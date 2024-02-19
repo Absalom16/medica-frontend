@@ -14,21 +14,35 @@ function PageNav() {
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <span>
-            <FontAwesomeIcon icon={faHeartbeat} size="2x"/> <strong>medica</strong>
+            <NavLink to="/">
+              <span style={{ display: "inline-flex" }}>
+                <FontAwesomeIcon icon={faHeartbeat} size="2x" />{" "}
+                <strong>medica</strong>
+              </span>
+            </NavLink>
           </span>
         </Typography>
-        <Button color="inherit">
+        <Button
+          color="inherit"
+          sx={{ "&:hover": { backgroundColor: "#212121" } }}
+        >
           <span>
             <FontAwesomeIcon icon={faHome} /> <NavLink to="/">Home</NavLink>
           </span>
         </Button>
-        <Button color="inherit">
+        <Button
+          color="inherit"
+          sx={{ "&:hover": { backgroundColor: "#212121" } }}
+        >
           <span>
             <FontAwesomeIcon icon={faUserPlus} />{" "}
             <NavLink to="/signup">Signup</NavLink>
           </span>
         </Button>
-        <Button color="inherit">
+        <Button
+          color="inherit"
+          sx={{ "&:hover": { backgroundColor: "#212121" } }}
+        >
           <span>
             <FontAwesomeIcon icon={faSignIn} />{" "}
             <NavLink to="/login">Login</NavLink>

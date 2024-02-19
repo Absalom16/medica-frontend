@@ -34,8 +34,18 @@ function ChatPage() {
   return (
     <Container maxWidth="lg" style={{ paddingTop: "10px" }}>
       <Grid container spacing={2}>
-        <Grid item xs={3} style={{ display: "flex", flexDirection: "column" }}>
-          <Paper style={{ height: "79vh", overflowY: "auto" }}>
+        <Grid
+          item
+          xs={3}
+          style={{ display: "flex", flexDirection: "column", boxShadow: 20 }}
+        >
+          <Paper
+            style={{
+              height: "79vh",
+              overflowY: "auto",
+              backgroundColor: "#d1d5db",
+            }}
+          >
             {/* Sidebar content here */}
             <Grid container spacing={2}>
               <Grid item xs={12} style={{ margin: "10px" }}>
@@ -75,6 +85,7 @@ function ChatPage() {
               "::-webkit-scrollbar": {
                 display: "none",
               },
+              backgroundColor: "#d1d5db",
             }}
           >
             {messages.map((message, index) => (
