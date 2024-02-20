@@ -1,3 +1,5 @@
+import { useState } from "react";
+//1. import { useDispatch } from "react-redux";
 import {
   Container,
   Typography,
@@ -6,8 +8,33 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+//2. import { setSignUpDetails } from "../store/userSlice";
+import { signup } from "../helpers";
 
 export default function Signup() {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const signupData = {
+    username: username,
+    email: email,
+    password: password,
+  };
+
+  //3. const dispatch = useDispatch();
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    if (!username || !email || !password) return;
+    //4. dispatch(setSignUpDetails(signupData));
+
+    //call function to send data to server
+    signup(signupData, (data) => {
+      console.log(data);
+    });
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Card elevation={20}>
@@ -25,6 +52,9 @@ export default function Signup() {
               name="username"
               autoComplete="username"
               autoFocus
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
             />
             <TextField
               variant="outlined"
@@ -34,6 +64,9 @@ export default function Signup() {
               label="Email Address"
               name="email"
               autoComplete="email"
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
             />
             <TextField
               variant="outlined"
@@ -44,8 +77,17 @@ export default function Signup() {
               type="password"
               id="password"
               autoComplete="new-password"
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
             />
-            <Button type="submit" fullWidth variant="contained" color="primary">
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              onClick={handleClick}
+            >
               Sign Up
             </Button>
           </form>

@@ -8,16 +8,14 @@ import {
   Card,
   CardContent,
   Avatar,
-  Button,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPaperPlane,
-  faPlus,
-  faHistory,
   faRobot,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import Sidebar from "../components/sidebar";
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);
@@ -39,46 +37,7 @@ function ChatPage() {
           xs={3}
           style={{ display: "flex", flexDirection: "column", boxShadow: 20 }}
         >
-          <Paper
-            style={{
-              height: "79vh",
-              overflowY: "auto",
-              backgroundColor: "#d1d5db",
-            }}
-          >
-            {/* Sidebar content here */}
-            <Grid container spacing={2}>
-              <Grid item xs={12} style={{ margin: "10px" }}>
-                <Button
-                  variant="contained"
-                  style={{ width: "100%", backgroundColor: "#374151" }}
-                >
-                  <span style={{ padding: "10px" }}>
-                    <FontAwesomeIcon
-                      icon={faPlus}
-                      style={{ marginRight: "10px" }}
-                    />{" "}
-                    New Chat
-                  </span>
-                </Button>
-              </Grid>
-              <Grid item xs={12} style={{ margin: "10px" }}>
-                <Button
-                  variant="contained"
-                  style={{ width: "100%", backgroundColor: "#374151" }}
-                >
-                  <span style={{ padding: "10px" }}>
-                    <FontAwesomeIcon
-                      icon={faHistory}
-                      style={{ marginRight: "10px" }}
-                    />{" "}
-                    History
-                  </span>
-                </Button>
-              </Grid>
-              {/* Add more Grid items for additional buttons */}
-            </Grid>
-          </Paper>
+          <Sidebar />
         </Grid>
         <Grid item xs={9}>
           <Paper
