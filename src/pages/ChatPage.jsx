@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -8,6 +8,7 @@ import {
   Card,
   CardContent,
   Avatar,
+  Autocomplete,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -16,17 +17,49 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/sidebar";
+import { diagnose, getSymptoms } from "../helpers";
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
+  const [symptoms, setSymptoms] = useState([]);
+
+  useEffect(() => {
+    getSymptoms((data) => {
+      setSymptoms(data.payload);
+      console.log(data);
+    });
+  }, []);
 
   const handleSendMessage = () => {
     if (inputText.trim() === "") return;
-    const newMessage = { text: inputText, sender: "bot" };
+    const newMessage = { text: inputText, sender: "user" };
     setMessages([...messages, newMessage]);
     setInputText("");
+
     // Here you can add logic to send the message to a server or perform any other actions.
+    diagnose(
+      {
+        email: "testemail",
+        symptoms: [
+          "fever",
+          " chills",
+          " headache",
+          " muscle aches",
+          " fatigue",
+          " nausea",
+          " and vomiting.",
+        ],
+      },
+      (data) => {
+        const serverMessage = {
+          text: data.payload.closeMatch.item.illness,
+          sender: "bot",
+        };
+
+        setMessages([...messages, newMessage, serverMessage]);
+      }
+    );
   };
 
   return (
@@ -47,7 +80,7 @@ function ChatPage() {
               bgcolor: "#e7e5e4",
               scrollbarWidth: "none",
               /* Optional: for Firefox */
-              "::-webkit-scrollbar": {
+              "::WebkitScrollbar": {
                 display: "none",
               },
               backgroundColor: "#d1d5db",
@@ -110,13 +143,18 @@ function ChatPage() {
             ))}
           </Paper>
           <div style={{ marginTop: "5px", display: "flex" }}>
-            <TextField
+            <Autocomplete
               fullWidth
-              variant="outlined"
-              placeholder="Type your message..."
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              style={{ backgroundColor: "white" }}
+              disablePortal
+              id="combo-box-demo"
+              options={symptoms}
+              sx={{ width: "100%", backgroundColor: "white" }}
+              renderInput={(params) => (
+                <TextField {...params} label="Symptoms" fullWidth />
+              )}
+              onChange={(event, value) => {
+                setInputText(value);
+              }}
             />
             <IconButton color="primary" onClick={handleSendMessage}>
               <FontAwesomeIcon icon={faPaperPlane} size="2x" />

@@ -41,8 +41,23 @@ export function login(data, callback) {
 }
 
 //function to fetch diagnosis data from server
-export function diagnose(data) {
-  console.log(data);
+export function diagnose(data, callback) {
+  fetch(`${url}/diagnose`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((result) => {
+      callback(result);
+    })
+    .catch((err) => {
+      console.error("Error", err);
+    });
 }
 
 //functions to fetch specific illness data from server
@@ -51,8 +66,17 @@ export function getIllness(data) {
 }
 
 //function to fetch symptoms data from server
-export function getSymptoms(data) {
-  console.log(data);
+export function getSymptoms(callback) {
+  fetch(`${url}/selectSymptoms`)
+    .then((res) => {
+      return res.json();
+    })
+    .then((result) => {
+      callback(result);
+    })
+    .catch((err) => {
+      console.error("Error", err);
+    });
 }
 
 //function to fetch chat history from server
