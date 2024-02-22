@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 //1. import { useDispatch } from "react-redux";
 import {
   Container,
@@ -31,9 +32,18 @@ export default function Signup() {
 
     //call function to send data to server
     signup(signupData, (data) => {
-      console.log(data);
+      if (data.status === 400) {
+        console.log("user already exists!");
+      } else if (data.status === 200) {
+        navigate("/login");
+      } else {
+        console.log("server error!");
+      }
+      // console.log(data);
     });
   };
+
+  const navigate = useNavigate();
 
   return (
     <Container component="main" maxWidth="xs">

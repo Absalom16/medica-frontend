@@ -3,7 +3,6 @@ import {
   Container,
   Paper,
   TextField,
-  IconButton,
   Grid,
   Card,
   CardContent,
@@ -11,49 +10,46 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPaperPlane,
-  faRobot,
-  faUser,
-} from "@fortawesome/free-solid-svg-icons";
+import { faRobot, faUser } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/sidebar";
 import { diagnose, getSymptoms } from "../helpers";
+import SymptomsOverview from "../components/SymptomsOverview";
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [symptoms, setSymptoms] = useState([]);
+  const [querySymptoms, setQuerySymptoms] = useState([]);
 
+  //fetching all available symptoms from server
   useEffect(() => {
     getSymptoms((data) => {
       setSymptoms(data.payload);
-      console.log(data);
     });
   }, []);
 
   const handleSendMessage = () => {
+    console.log(querySymptoms);
     if (inputText.trim() === "") return;
-    const newMessage = { text: inputText, sender: "user" };
+    const newMessage = { text: querySymptoms.join(", "), sender: "user" };
     setMessages([...messages, newMessage]);
     setInputText("");
+    setQuerySymptoms([]);
 
-    // Here you can add logic to send the message to a server or perform any other actions.
+    //sending message to server and getting response
     diagnose(
       {
         email: "testemail",
-        symptoms: [
-          "fever",
-          " chills",
-          " headache",
-          " muscle aches",
-          " fatigue",
-          " nausea",
-          " and vomiting.",
-        ],
+        symptoms: querySymptoms,
       },
       (data) => {
+        console.log(data);
         const serverMessage = {
-          text: data.payload.closeMatch.item.illness,
+          name: data.payload.closeMatch.item.illness,
+          description: data.payload.closeMatch.item.description,
+          diagnosis: data.payload.closeMatch.item.diagnosis,
+          medication: data.payload.closeMatch.item.medication,
+          link: data.payload.closeMatch.item.link,
           sender: "bot",
         };
 
@@ -83,9 +79,16 @@ function ChatPage() {
               "::WebkitScrollbar": {
                 display: "none",
               },
-              backgroundColor: "#d1d5db",
+              backgroundColor: "#F8FAFD",
             }}
           >
+            {querySymptoms.length > 0 && (
+              <SymptomsOverview
+                querySymptoms={querySymptoms}
+                handleSendMessage={handleSendMessage}
+              />
+            )}
+
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -121,22 +124,36 @@ function ChatPage() {
                 <Card
                   sx={{
                     marginBottom: 2,
-                    bgcolor: message.sender === "bot" ? "blue" : "green",
+                    bgcolor: message.sender === "bot" ? "#374151" : "#05445E",
                     color: "white",
                     maxWidth: 500,
                     height: "auto", // Adjust the height as needed
                     maxHeight: 200, // Maximum height before scroll appears
-                    borderRadius: 8,
+                    borderRadius: 4,
                     overflowY: "auto",
                     boxShadow: 5,
                   }}
                 >
                   <CardContent>
-                    <div
-                      style={{ maxWidth: "100%", overflowWrap: "break-word" }}
-                    >
-                      {message.text}
-                    </div>
+                    {message.sender === "user" ? (
+                      <div
+                        style={{ maxWidth: "100%", overflowWrap: "break-word" }}
+                      >
+                        {message.text}
+                      </div>
+                    ) : (
+                      <div
+                        style={{ maxWidth: "100%", overflowWrap: "break-word" }}
+                      >
+                        <strong>name:</strong> {message.name}
+                        <br />
+                        <strong>description:</strong> {message.description}
+                        <br />
+                        <strong>diagnosis:</strong> {message.diagnosis}
+                        <br />
+                        {/* <a href = `${message.link}`>learn more</a> */}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -146,6 +163,7 @@ function ChatPage() {
             <Autocomplete
               fullWidth
               disablePortal
+              clearOnBlur
               id="combo-box-demo"
               options={symptoms}
               sx={{ width: "100%", backgroundColor: "white" }}
@@ -154,11 +172,12 @@ function ChatPage() {
               )}
               onChange={(event, value) => {
                 setInputText(value);
+                setQuerySymptoms([...querySymptoms, value]);
               }}
             />
-            <IconButton color="primary" onClick={handleSendMessage}>
+            {/* <IconButton color="primary" onClick={handleSendMessage}>
               <FontAwesomeIcon icon={faPaperPlane} size="2x" />
-            </IconButton>
+            </IconButton> */}
           </div>
         </Grid>
       </Grid>

@@ -9,7 +9,7 @@ export default function Sidebar() {
       style={{
         height: "79vh",
         overflowY: "auto",
-        backgroundColor: "#d1d5db",
+        backgroundColor: "#F8FAFD",
       }}
     >
       {/* Sidebar content here */}

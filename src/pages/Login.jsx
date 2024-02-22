@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -18,10 +19,18 @@ const Login = () => {
     password: password,
   };
 
+  const navigate = useNavigate();
+
   const handleClick = (e) => {
     e.preventDefault();
     login(loginData, (data) => {
-      console.log(data);
+      if (data.status === 400) {
+        console.log("user does not exist");
+      } else if (data.status === 200) {
+        navigate("/chat");
+      } else if (data.status === 403) {
+        console.log("incorrect email or password!");
+      }
     });
   };
 

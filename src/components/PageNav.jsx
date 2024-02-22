@@ -10,7 +10,11 @@ import {
 
 function PageNav() {
   return (
-    <AppBar position="static" elevation={15}>
+    <AppBar
+      position="static"
+      elevation={15}
+      sx={{ backgroundColor: "#05445E" }}
+    >
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <span>
