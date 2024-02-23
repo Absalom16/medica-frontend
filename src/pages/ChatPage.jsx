@@ -12,14 +12,18 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRobot, faUser } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/sidebar";
-import { diagnose, getSymptoms } from "../helpers";
+import { diagnose, getCurrentTime, getSymptoms } from "../helpers";
 import SymptomsOverview from "../components/SymptomsOverview";
+import { useSelector } from "react-redux";
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [symptoms, setSymptoms] = useState([]);
   const [querySymptoms, setQuerySymptoms] = useState([]);
+
+  const auth = useSelector((store) => store.user);
+  console.log(auth)
 
   //fetching all available symptoms from server
   useEffect(() => {
@@ -137,13 +141,33 @@ function ChatPage() {
                   <CardContent>
                     {message.sender === "user" ? (
                       <div
-                        style={{ maxWidth: "100%", overflowWrap: "break-word" }}
+                        style={{
+                          maxWidth: "100%",
+                          overflowWrap: "break-word",
+                          position: "relative",
+                        }}
                       >
-                        {message.text}
+                        <span>{message.text}</span>
+                        <br />
+                        <br />
+                        <span
+                          style={{
+                            position: "absolute",
+                            bottom: 0,
+                            right: 0,
+                            fontSize: "smaller",
+                          }}
+                        >
+                          {getCurrentTime()}
+                        </span>
                       </div>
                     ) : (
                       <div
-                        style={{ maxWidth: "100%", overflowWrap: "break-word" }}
+                        style={{
+                          maxWidth: "100%",
+                          overflowWrap: "break-word",
+                          position: "relative",
+                        }}
                       >
                         <strong>name:</strong> {message.name}
                         <br />
@@ -151,7 +175,24 @@ function ChatPage() {
                         <br />
                         <strong>diagnosis:</strong> {message.diagnosis}
                         <br />
-                        {/* <a href = `${message.link}`>learn more</a> */}
+                        <a
+                          href={`${message.link}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <u>learn more</u>
+                        </a>
+                        <br />
+                        <span
+                          style={{
+                            position: "absolute",
+                            bottom: 0,
+                            right: 0,
+                            fontSize: "smaller",
+                          }}
+                        >
+                          {getCurrentTime()}
+                        </span>
                       </div>
                     )}
                   </CardContent>

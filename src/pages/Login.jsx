@@ -9,6 +9,8 @@ import {
   CardContent,
 } from "@mui/material";
 import { login } from "../helpers";
+import { useDispatch } from "react-redux";
+import { setAuthDetails } from "../store/userSlice";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -20,6 +22,7 @@ const Login = () => {
   };
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -27,6 +30,15 @@ const Login = () => {
       if (data.status === 400) {
         console.log("user does not exist");
       } else if (data.status === 200) {
+        // console.log(data);
+        dispatch(
+          setAuthDetails({
+            username: data.user.username,
+            email: data.user.email,
+            token: data.accessToken,
+            isLoggedIn: true,
+          })
+        );
         navigate("/chat");
       } else if (data.status === 403) {
         console.log("incorrect email or password!");
@@ -41,7 +53,7 @@ const Login = () => {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <form onSubmit={""}>
+          <form>
             <TextField
               variant="outlined"
               margin="normal"
@@ -72,7 +84,7 @@ const Login = () => {
               type="submit"
               fullWidth
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: "#05445E", color: "white" }}
               onClick={handleClick}
             >
               Sign In

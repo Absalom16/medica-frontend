@@ -16,10 +16,16 @@ const SymptomsOverview = ({ querySymptoms, handleSendMessage }) => {
         boxShadow: 5,
         marginLeft: 20,
         position: "absolute",
+        zIndex: 1,
       }}
     >
       <CardContent>
-        <div style={{ maxWidth: "100%", overflowWrap: "break-word" }}>
+        <div
+          style={{
+            maxWidth: "100%",
+            overflowWrap: "break-word",
+          }}
+        >
           {querySymptoms.map((symptom, index) => (
             <h3 key={index}>{symptom}</h3>
           ))}
