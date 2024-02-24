@@ -23,7 +23,7 @@ function ChatPage() {
   const [querySymptoms, setQuerySymptoms] = useState([]);
 
   const auth = useSelector((store) => store.user);
-  console.log(auth)
+  console.log(auth);
 
   //fetching all available symptoms from server
   useEffect(() => {
@@ -33,7 +33,6 @@ function ChatPage() {
   }, []);
 
   const handleSendMessage = () => {
-    console.log(querySymptoms);
     if (inputText.trim() === "") return;
     const newMessage = { text: querySymptoms.join(", "), sender: "user" };
     setMessages([...messages, newMessage]);
@@ -47,13 +46,13 @@ function ChatPage() {
         symptoms: querySymptoms,
       },
       (data) => {
-        console.log(data);
+        const result = data.payload.closeMatch;
         const serverMessage = {
-          name: data.payload.closeMatch.item.illness,
-          description: data.payload.closeMatch.item.description,
-          diagnosis: data.payload.closeMatch.item.diagnosis,
-          medication: data.payload.closeMatch.item.medication,
-          link: data.payload.closeMatch.item.link,
+          name: result.item.illness,
+          description: result.item.description,
+          diagnosis: result.item.diagnosis,
+          medication: result.item.medication,
+          link: result.item.link,
           sender: "bot",
         };
 

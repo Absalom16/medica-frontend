@@ -104,7 +104,7 @@ function PageNav() {
                 <NavLink to="/signup">Signup</NavLink>
               </span>
             </Button>
-            {!state.isLoggedIn && (
+            {!state.isLoggedIn ? (
               <Button
                 color="inherit"
                 sx={{ "&:hover": { backgroundColor: "#212121" } }}
@@ -114,9 +114,8 @@ function PageNav() {
                   <NavLink to="/login">Login</NavLink>
                 </span>
               </Button>
-            )}
-            {state.isLoggedIn && (
-              <>
+            ) : (
+              <span>
                 <Avatar
                   alt={state.username.toUpperCase()}
                   src="/path_to_avatar.jpg"
@@ -142,7 +141,7 @@ function PageNav() {
                   <MenuItem onClick={handleClose}>Settings</MenuItem>
                   <MenuItem onClick={handleClose}>Logout</MenuItem>
                 </Menu>
-              </>
+              </span>
             )}
           </div>
         )}

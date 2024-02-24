@@ -5,7 +5,7 @@ import Login from "./pages/Login";
 import ChatPage from "./pages/ChatPage";
 import PageNotFound from "./pages/PageNotFound";
 import PageLayout from "./pages/PageLayout";
-// import ProtectedRoute from "./pages/ProtectedRoute";
+import ProtectedRoute from "./pages/ProtectedRoute";
 
 function App() {
   return (
@@ -15,8 +15,14 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
-          {/* <ProtectedRoute path="chat" element={<ChatPage />} /> */}
-          <Route path="chat" element={<ChatPage />} />
+          <Route
+            path="chat"
+            element={
+              <ProtectedRoute>
+                <ChatPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

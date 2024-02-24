@@ -1,14 +1,16 @@
-import { Navigate, Route } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
-const ProtectedRoute = ({ element, ...rest }) => {
+const ProtectedRoute = ({ children }) => {
   const auth = useSelector((store) => store.user.authDetails);
+  const navigate = useNavigate();
 
-  return auth.isLoggedIn ? (
-    <Route {...rest} element={element} />
-  ) : (
-    <Navigate to="/login" replace />
-  );
+  useEffect(() => {
+    if (!auth.isLoggedIn) navigate("/login");
+  }, [auth.isLoggedIn, navigate]);
+
+  return children;
 };
 
 export default ProtectedRoute;
