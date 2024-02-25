@@ -1,6 +1,4 @@
-import { IconButton, Card, CardContent } from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { Button, Card, CardContent } from "@mui/material";
 
 const SymptomsOverview = ({ querySymptoms, handleSendMessage }) => {
   return (
@@ -19,7 +17,7 @@ const SymptomsOverview = ({ querySymptoms, handleSendMessage }) => {
         zIndex: 1,
       }}
     >
-      <CardContent>
+      <CardContent style={{ display: "flex", flexDirection: "column" }}>
         <div
           style={{
             maxWidth: "100%",
@@ -30,9 +28,12 @@ const SymptomsOverview = ({ querySymptoms, handleSendMessage }) => {
             <h3 key={index}>{symptom}</h3>
           ))}
         </div>
-        <IconButton color="primary" onClick={handleSendMessage}>
-          <FontAwesomeIcon icon={faPaperPlane} size="1x" />
-        </IconButton>
+        <Button
+          onClick={handleSendMessage}
+          style={{ backgroundColor: "#05445E", color: "white" }}
+        >
+          Send
+        </Button>
       </CardContent>
     </Card>
   );

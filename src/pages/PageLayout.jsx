@@ -1,11 +1,22 @@
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import PageNav from "../components/PageNav";
 import Footer from "../components/Footer";
 import backgroundImage from "../images/backgroundImage.jpg";
 
 export default function PageLayout() {
+  // Disable scrolling when this component mounts
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    // Re-enable scrolling when this component unmounts
+    return () => {
+      document.body.style.overflow = "visible";
+    };
+  }, []);
+
   return (
-    <div className="relative h-screen">
+    <div className="relative h-screen overflow-hidden">
       {/* overlay */}
       <div
         className="absolute inset-0 bg-black opacity-40 z-0"
@@ -16,7 +27,7 @@ export default function PageLayout() {
         }}
       ></div>
       {/* page content */}
-      <div className="relative z-10">
+      <div className="relative z-10 overflow-auto">
         <PageNav />
         <div
           style={{

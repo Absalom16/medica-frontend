@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -8,29 +8,51 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { login } from "../helpers";
+import { login } from "../utilities/helpers";
 import { useDispatch } from "react-redux";
 import { setAuthDetails } from "../store/userSlice";
+import { FadeLoader } from "react-spinners";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const loginData = {
-    email: email,
-    password: password,
-  };
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [loading, setLoading] = useState(false); // State for loading indicator
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleClick = (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when login process starts
+
+    // Form validation
+    const errors = {};
+    if (!email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "Email is invalid";
+    }
+    if (!password.trim()) {
+      errors.password = "Password is required";
+    }
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      setLoading(false); // Set loading to false when validation fails
+      return;
+    }
+
+    const loginData = {
+      email: email,
+      password: password,
+    };
+
     login(loginData, (data) => {
+      setLoading(false); // Set loading to false when login process completes
       if (data.status === 400) {
-        console.log("user does not exist");
+        setServerError(data.message);
       } else if (data.status === 200) {
-        // console.log(data);
         dispatch(
           setAuthDetails({
             username: data.user.username,
@@ -41,10 +63,19 @@ const Login = () => {
         );
         navigate("/chat");
       } else if (data.status === 403) {
-        console.log("incorrect email or password!");
+        setServerError(data.message);
+      } else if (data.status === 500) {
+        setServerError(data.message);
       }
     });
   };
+
+  // Rerender the page when serverError changes
+  useEffect(() => {
+    // Force a rerender
+    // This is just a dummy state update, it can be any state that changes
+    setErrors((prevErrors) => ({ ...prevErrors }));
+  }, [serverError]);
 
   return (
     <Container component="main" maxWidth="xs">
@@ -63,8 +94,14 @@ const Login = () => {
               name="email"
               autoComplete="email"
               autoFocus
+              error={!!errors.email}
+              helperText={errors.email}
               onChange={(e) => {
                 setEmail(e.target.value);
+                setErrors((prevErrors) => ({
+                  ...prevErrors,
+                  email: "",
+                }));
               }}
             />
             <TextField
@@ -76,8 +113,14 @@ const Login = () => {
               type="password"
               id="password"
               autoComplete="current-password"
+              error={!!errors.password}
+              helperText={errors.password}
               onChange={(e) => {
                 setPassword(e.target.value);
+                setErrors((prevErrors) => ({
+                  ...prevErrors,
+                  password: "",
+                }));
               }}
             />
             <Button
@@ -86,9 +129,23 @@ const Login = () => {
               variant="contained"
               style={{ backgroundColor: "#05445E", color: "white" }}
               onClick={handleClick}
+              disabled={loading} // Disable button when loading
             >
-              Sign In
+              {loading ? ( // Show loading indicator instead of text when loading
+                <FadeLoader color="#ffffff" loading={loading} size={8} />
+              ) : (
+                "Sign In"
+              )}
             </Button>
+            <span
+              style={{
+                color: "red",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              {serverError !== "" && serverError}
+            </span>
           </form>
         </CardContent>
       </Card>

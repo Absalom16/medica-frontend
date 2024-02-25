@@ -1,8 +1,15 @@
-import { Container, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Button,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const HomePage = () => {
-  const isLoggedIn = !true;
+  const isLoggedIn = useSelector((store) => store.user.authDetails.isLoggedIn);
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -23,10 +30,20 @@ const HomePage = () => {
       sx={{ textAlign: "center", paddingTop: "40px" }}
     >
       <div>
-        <Typography variant="h4" gutterBottom sx={{ fontSize: isSmallScreen ? "2rem" : "3rem" }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ fontSize: isSmallScreen ? "2rem" : "3rem" }}
+        >
           Welcome to Medica! Your #1 trusted medical consultant.
         </Typography>
-        <Typography variant="body1" sx={{ marginBottom: "20px", fontSize: isSmallScreen ? "0.9rem" : "1rem" }}>
+        <Typography
+          variant="body1"
+          sx={{
+            marginBottom: "20px",
+            fontSize: isSmallScreen ? "0.9rem" : "1rem",
+          }}
+        >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget
           aliquam nunc. Vestibulum id lorem id lorem dictum efficitur eu eget
           purus. Vestibulum eget lacinia mauris, vel dapibus lectus. Aenean quis

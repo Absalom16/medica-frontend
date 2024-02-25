@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Container,
   Paper,
@@ -8,11 +8,21 @@ import {
   CardContent,
   Avatar,
   Autocomplete,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Hidden,
+  Fab,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRobot, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faRobot,
+  faUser,
+  faArrowAltCircleRight,
+} from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/sidebar";
-import { diagnose, getCurrentTime, getSymptoms } from "../helpers";
+import { diagnose, getCurrentTime, getSymptoms } from "../utilities/helpers";
 import SymptomsOverview from "../components/SymptomsOverview";
 import { useSelector } from "react-redux";
 
@@ -21,9 +31,10 @@ function ChatPage() {
   const [inputText, setInputText] = useState("");
   const [symptoms, setSymptoms] = useState([]);
   const [querySymptoms, setQuerySymptoms] = useState([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State for drawer
+  const chatContainerRef = useRef(null);
 
   const auth = useSelector((store) => store.user);
-  console.log(auth);
 
   //fetching all available symptoms from server
   useEffect(() => {
@@ -42,7 +53,7 @@ function ChatPage() {
     //sending message to server and getting response
     diagnose(
       {
-        email: "testemail",
+        email: auth.authDetails.email,
         symptoms: querySymptoms,
       },
       (data) => {
@@ -61,6 +72,16 @@ function ChatPage() {
     );
   };
 
+  // Scroll to the bottom of the chat container
+  const scrollToBottom = () => {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  };
+
+  // Add a new message and scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <Container maxWidth="lg" style={{ paddingTop: "10px" }}>
       <Grid container spacing={2}>
@@ -69,10 +90,48 @@ function ChatPage() {
           xs={3}
           style={{ display: "flex", flexDirection: "column", boxShadow: 20 }}
         >
-          <Sidebar />
+          {/*menu icon for small screens */}
+          <Fab
+            onClick={() => setIsDrawerOpen(true)}
+            sx={{ display: { md: "none" } }} // Hide for medium screens and up
+            style={{
+              position: "fixed",
+              top: "70px",
+              left: "1px",
+              backgroundColor: "#212121",
+              color: "white",
+              boxShadow: 24,
+            }}
+            size="small"
+          >
+            <FontAwesomeIcon icon={faArrowAltCircleRight} />
+          </Fab>
+
+          {/* Drawer for small screens */}
+          <Drawer
+            anchor="left"
+            open={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)} // Close drawer on outside click
+          >
+            {/* Drawer content */}
+            <List>
+              <ListItem button onClick={() => setIsDrawerOpen(false)}>
+                <ListItemText>New chat</ListItemText>
+              </ListItem>
+              <ListItem button onClick={() => setIsDrawerOpen(false)}>
+                <ListItemText>History</ListItemText>
+              </ListItem>
+              {/* Add more items as needed */}
+            </List>
+          </Drawer>
+          {/* Sidebar for large screens */}
+          <Hidden mdDown>
+            <Sidebar />
+          </Hidden>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={12} md={9}>
           <Paper
+            ref={chatContainerRef}
             style={{
               height: "70vh",
               overflowY: "auto",

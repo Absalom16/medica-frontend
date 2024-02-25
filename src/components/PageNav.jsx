@@ -24,6 +24,8 @@ import {
   faUserPlus,
   faSignIn,
   faBars,
+  faSignOut,
+  faCogs,
 } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 
@@ -86,36 +88,42 @@ function PageNav() {
 
         {/* Buttons for larger screens */}
         {!isSmallScreen && (
-          <div style={{ display: { xs: "none", sm: "block" } }}>
-            <Button
-              color="inherit"
-              sx={{ "&:hover": { backgroundColor: "#212121" } }}
-            >
-              <span>
-                <FontAwesomeIcon icon={faHome} /> <NavLink to="/">Home</NavLink>
-              </span>
-            </Button>
-            <Button
-              color="inherit"
-              sx={{ "&:hover": { backgroundColor: "#212121" } }}
-            >
-              <span>
-                <FontAwesomeIcon icon={faUserPlus} />{" "}
-                <NavLink to="/signup">Signup</NavLink>
-              </span>
-            </Button>
-            {!state.isLoggedIn ? (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <NavLink to="/">
               <Button
                 color="inherit"
                 sx={{ "&:hover": { backgroundColor: "#212121" } }}
               >
                 <span>
-                  <FontAwesomeIcon icon={faSignIn} />{" "}
-                  <NavLink to="/login">Login</NavLink>
+                  <FontAwesomeIcon icon={faHome} />
+                  Home
                 </span>
               </Button>
+            </NavLink>
+            <NavLink to="/signup">
+              <Button
+                color="inherit"
+                sx={{ "&:hover": { backgroundColor: "#212121" } }}
+              >
+                <span>
+                  <FontAwesomeIcon icon={faUserPlus} /> Signup
+                </span>
+              </Button>
+            </NavLink>
+
+            {!state.isLoggedIn ? (
+              <NavLink to="/login">
+                <Button
+                  color="inherit"
+                  sx={{ "&:hover": { backgroundColor: "#212121" } }}
+                >
+                  <span>
+                    <FontAwesomeIcon icon={faSignIn} /> Login
+                  </span>
+                </Button>
+              </NavLink>
             ) : (
-              <span>
+              <>
                 <Avatar
                   alt={state.username.toUpperCase()}
                   src="/path_to_avatar.jpg"
@@ -138,10 +146,14 @@ function PageNav() {
                     },
                   }}
                 >
-                  <MenuItem onClick={handleClose}>Settings</MenuItem>
-                  <MenuItem onClick={handleClose}>Logout</MenuItem>
+                  <MenuItem onClick={handleClose}>
+                    <FontAwesomeIcon icon={faCogs} /> Settings
+                  </MenuItem>
+                  <MenuItem onClick={handleClose}>
+                    <FontAwesomeIcon icon={faSignOut} /> Logout
+                  </MenuItem>
                 </Menu>
-              </span>
+              </>
             )}
           </div>
         )}
