@@ -27,10 +27,16 @@ import {
   faSignOut,
   faCogs,
 } from "@fortawesome/free-solid-svg-icons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setAuthDetails } from "../store/userSlice";
+import { saveChatHistory } from "../utilities/helpers";
 
 function PageNav() {
-  const state = useSelector((store) => store.user.authDetails);
+  const { email, username, isLoggedIn } = useSelector(
+    (store) => store.user.authDetails
+  );
+  const chatHistory = useSelector((store) => store.chatHistory.currentChats);
+  const dispatch = useDispatch();
 
   const [anchorEl, setAnchorEl] = useState(null); // State for menu anchor element
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State for drawer
@@ -52,6 +58,22 @@ function PageNav() {
 
   const handleDrawerClose = () => {
     setIsDrawerOpen(false); // Close drawer
+  };
+
+  const logout = () => {
+    dispatch(
+      setAuthDetails({
+        username: "",
+        email: "",
+        token: "",
+        isLoggedIn: false,
+      })
+    );
+
+    saveChatHistory({ email: email, chats: chatHistory }, (data) => {
+      console.log(data);
+    });
+    setAnchorEl(null); // Close menu
   };
 
   return (
@@ -111,7 +133,7 @@ function PageNav() {
               </Button>
             </NavLink>
 
-            {!state.isLoggedIn ? (
+            {!isLoggedIn ? (
               <NavLink to="/login">
                 <Button
                   color="inherit"
@@ -125,7 +147,7 @@ function PageNav() {
             ) : (
               <>
                 <Avatar
-                  alt={state.username.toUpperCase()}
+                  alt={username.toUpperCase()}
                   src="/path_to_avatar.jpg"
                   sx={{
                     boxShadow: 5,
@@ -149,7 +171,7 @@ function PageNav() {
                   <MenuItem onClick={handleClose}>
                     <FontAwesomeIcon icon={faCogs} /> Settings
                   </MenuItem>
-                  <MenuItem onClick={handleClose}>
+                  <MenuItem onClick={logout}>
                     <FontAwesomeIcon icon={faSignOut} /> Logout
                   </MenuItem>
                 </Menu>
@@ -176,7 +198,7 @@ function PageNav() {
                 <NavLink to="/signup">Signup</NavLink>
               </ListItemText>
             </ListItem>
-            {!state.isLoggedIn && (
+            {isLoggedIn && (
               <ListItem button onClick={handleDrawerClose}>
                 <ListItemText>
                   <FontAwesomeIcon icon={faSignIn} />{" "}
@@ -184,12 +206,12 @@ function PageNav() {
                 </ListItemText>
               </ListItem>
             )}
-            {state.isLoggedIn && (
+            {isLoggedIn && (
               <ListItem button onClick={handleDrawerClose}>
                 <ListItemText>Settings</ListItemText>
               </ListItem>
             )}
-            {state.isLoggedIn && (
+            {isLoggedIn && (
               <ListItem button onClick={handleDrawerClose}>
                 <ListItemText>Logout</ListItemText>
               </ListItem>

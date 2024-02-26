@@ -92,3 +92,43 @@ export function getCurrentTime() {
   // const seconds = now.getSeconds().toString().padStart(2, "0");
   return `${hours}:${minutes}`;
 }
+
+//function to send chat history to server
+export function saveChatHistory(data, callback) {
+  fetch(`${url}/saveHistory`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((result) => {
+      callback(result);
+    })
+    .catch((err) => {
+      console.error("Error", err);
+    });
+}
+
+//function to retrieve chat history from server
+export function getChatHistory(data, callback) {
+  fetch(`${url}/getHistory`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((result) => {
+      callback(result);
+    })
+    .catch((err) => {
+      console.error("Error", err);
+    });
+}

@@ -22,9 +22,15 @@ import {
   faArrowAltCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import Sidebar from "../components/sidebar";
-import { diagnose, getCurrentTime, getSymptoms } from "../utilities/helpers";
+import {
+  diagnose,
+  getCurrentTime,
+  getSymptoms,
+  saveChatHistory,
+} from "../utilities/helpers";
 import SymptomsOverview from "../components/SymptomsOverview";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { saveCurrentChats } from "../store/chatHistorySlice";
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);
@@ -34,7 +40,9 @@ function ChatPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State for drawer
   const chatContainerRef = useRef(null);
 
-  const auth = useSelector((store) => store.user);
+  const { email } = useSelector((store) => store.user.authDetails);
+  const chatHistory = useSelector((store) => store.chatHistory.currentChats);
+  const dispatch = useDispatch();
 
   //fetching all available symptoms from server
   useEffect(() => {
@@ -53,7 +61,7 @@ function ChatPage() {
     //sending message to server and getting response
     diagnose(
       {
-        email: auth.authDetails.email,
+        email: email,
         symptoms: querySymptoms,
       },
       (data) => {
@@ -66,8 +74,8 @@ function ChatPage() {
           link: result.item.link,
           sender: "bot",
         };
-
         setMessages([...messages, newMessage, serverMessage]);
+        dispatch(saveCurrentChats([...messages, newMessage, serverMessage]));
       }
     );
   };
@@ -81,6 +89,25 @@ function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  //function to save chats incase of a page reload.
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      saveChatHistory({ email: email, chats: chatHistory }, (data) => {
+        console.log(data);
+      });
+
+      // Optionally, you can prompt the user before leaving
+      event.returnValue = "prompt";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      // Cleanup: remove the event listener when the component unmounts
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   return (
     <Container maxWidth="lg" style={{ paddingTop: "10px" }}>
