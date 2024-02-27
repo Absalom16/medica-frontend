@@ -64,7 +64,11 @@ function ChatPage() {
 
   const handleSendMessage = () => {
     if (inputText.trim() === "") return;
-    const newMessage = { text: querySymptoms.join(", "), sender: "user" };
+    const newMessage = {
+      text: querySymptoms.join(", "),
+      sender: "user",
+      time: getCurrentTime(),
+    };
     setMessages([...messages, newMessage]);
     setInputText("");
     setQuerySymptoms([]);
@@ -84,6 +88,7 @@ function ChatPage() {
           medication: result.item.medication,
           link: result.item.link,
           sender: "bot",
+          time: getCurrentTime(),
         };
         setMessages([...messages, newMessage, serverMessage]);
         dispatch(saveCurrentChats([...messages, newMessage, serverMessage]));
@@ -335,7 +340,7 @@ function ChatPage() {
                                 fontSize: "smaller",
                               }}
                             >
-                              {getCurrentTime()}
+                              {message.time}
                             </span>
                           </div>
                         )}

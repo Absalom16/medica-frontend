@@ -41,7 +41,7 @@ export default function HistoryTable({ history, setShowHistory }) {
   history.message.forEach((item) => {
     const historyItem = createData(
       `${item.time.replaceAll("T", " ").replaceAll("000Z", "")}`,
-      `${JSON.parse(item.chats)[0]?.text}`,
+      `${JSON.parse(item.chats).length} messages`,
       `${"open"}`
     );
 
