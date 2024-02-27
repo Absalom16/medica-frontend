@@ -3,7 +3,7 @@ import { Paper, Grid, Button } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faHistory } from "@fortawesome/free-solid-svg-icons";
 
-export default function Sidebar() {
+export default function Sidebar({ handleHistory, handleNewChat }) {
   return (
     <Paper
       style={{
@@ -18,6 +18,7 @@ export default function Sidebar() {
           <Button
             variant="contained"
             style={{ width: "100%", backgroundColor: "#374151" }}
+            onClick={handleNewChat}
           >
             <span style={{ padding: "10px" }}>
               <FontAwesomeIcon icon={faPlus} style={{ marginRight: "10px" }} />{" "}
@@ -29,6 +30,7 @@ export default function Sidebar() {
           <Button
             variant="contained"
             style={{ width: "100%", backgroundColor: "#374151" }}
+            onClick={handleHistory}
           >
             <span style={{ padding: "10px" }}>
               <FontAwesomeIcon

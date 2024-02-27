@@ -24,13 +24,19 @@ import {
 import Sidebar from "../components/sidebar";
 import {
   diagnose,
+  getChatHistory,
   getCurrentTime,
   getSymptoms,
   saveChatHistory,
 } from "../utilities/helpers";
 import SymptomsOverview from "../components/SymptomsOverview";
+import HistoryTable from "../components/HistoryTable";
 import { useSelector, useDispatch } from "react-redux";
-import { saveCurrentChats } from "../store/chatHistorySlice";
+import {
+  clearChatHistory,
+  deleteHistoryChat,
+  saveCurrentChats,
+} from "../store/chatHistorySlice";
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);
@@ -38,10 +44,15 @@ function ChatPage() {
   const [symptoms, setSymptoms] = useState([]);
   const [querySymptoms, setQuerySymptoms] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State for drawer
+  const [showHistory, setShowHistory] = useState(false);
+  const [history, setHistory] = useState([]);
   const chatContainerRef = useRef(null);
 
   const { email } = useSelector((store) => store.user.authDetails);
   const chatHistory = useSelector((store) => store.chatHistory.currentChats);
+  const selectedChatHistory = useSelector(
+    (store) => store.chatHistory.historyChats
+  );
   const dispatch = useDispatch();
 
   //fetching all available symptoms from server
@@ -90,12 +101,16 @@ function ChatPage() {
     scrollToBottom();
   }, [messages]);
 
-  //function to save chats incase of a page reload.
+  //function to save chats incase of a page reload
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       saveChatHistory({ email: email, chats: chatHistory }, (data) => {
         console.log(data);
       });
+
+      setTimeout(() => {
+        dispatch(clearChatHistory());
+      }, 100);
 
       // Optionally, you can prompt the user before leaving
       event.returnValue = "prompt";
@@ -107,7 +122,42 @@ function ChatPage() {
       // Cleanup: remove the event listener when the component unmounts
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, []);
+  }, [email, chatHistory, dispatch]); // Include email and chatHistory in the dependency array
+
+  //function to handle new chat
+  const handleNewChat = () => {
+    setMessages([]);
+
+    saveChatHistory({ email: email, chats: chatHistory }, (data) => {
+      console.log(data);
+    });
+
+    setShowHistory(false);
+    dispatch(deleteHistoryChat());
+
+    setTimeout(() => {
+      dispatch(clearChatHistory());
+    }, 100);
+
+    setIsDrawerOpen(false);
+  };
+
+  //function to handle history
+  const handleHistory = () => {
+    getChatHistory({ email: email }, (data) => {
+      setShowHistory(true);
+      setHistory(data);
+    });
+    setIsDrawerOpen(false);
+
+    // saveChatHistory({ email: email, chats: chatHistory }, (data) => {
+    //   console.log(data);
+    // });
+
+    // setTimeout(() => {
+    //   dispatch(clearChatHistory());
+    // }, 100);
+  };
 
   return (
     <Container maxWidth="lg" style={{ paddingTop: "10px" }}>
@@ -142,10 +192,10 @@ function ChatPage() {
           >
             {/* Drawer content */}
             <List>
-              <ListItem button onClick={() => setIsDrawerOpen(false)}>
+              <ListItem button onClick={handleNewChat}>
                 <ListItemText>New chat</ListItemText>
               </ListItem>
-              <ListItem button onClick={() => setIsDrawerOpen(false)}>
+              <ListItem button onClick={handleHistory}>
                 <ListItemText>History</ListItemText>
               </ListItem>
               {/* Add more items as needed */}
@@ -153,158 +203,171 @@ function ChatPage() {
           </Drawer>
           {/* Sidebar for large screens */}
           <Hidden mdDown>
-            <Sidebar />
+            <Sidebar
+              handleNewChat={handleNewChat}
+              handleHistory={handleHistory}
+            />
           </Hidden>
         </Grid>
         <Grid item xs={12} md={9}>
-          <Paper
-            ref={chatContainerRef}
-            style={{
-              height: "70vh",
-              overflowY: "auto",
-              bgcolor: "#e7e5e4",
-              scrollbarWidth: "none",
-              /* Optional: for Firefox */
-              "::WebkitScrollbar": {
-                display: "none",
-              },
-              backgroundColor: "#F8FAFD",
-            }}
-          >
-            {querySymptoms.length > 0 && (
-              <SymptomsOverview
-                querySymptoms={querySymptoms}
-                handleSendMessage={handleSendMessage}
-              />
-            )}
-
-            {messages.map((message, index) => (
-              <div
-                key={index}
+          {!showHistory ? (
+            <>
+              <Paper
+                ref={chatContainerRef}
                 style={{
-                  display: "flex",
-                  flexDirection:
-                    message.sender === "bot" ? "row-reverse" : "row",
-                  alignItems: "center",
+                  height: "70vh",
+                  overflowY: "auto",
+                  bgcolor: "#e7e5e4",
+                  scrollbarWidth: "none",
+                  /* Optional: for Firefox */
+                  "::WebkitScrollbar": {
+                    display: "none",
+                  },
+                  backgroundColor: "#F8FAFD",
                 }}
               >
-                <Avatar
-                  sx={{
-                    marginRight: 1,
-                    boxShadow: 5,
-                    marginLeft: 1,
-                    backgroundColor: "#212121",
-                  }}
-                  alt="Avatar"
-                >
-                  {message.sender === "bot" ? (
-                    <FontAwesomeIcon
-                      icon={faRobot}
-                      // style={{ marginRight: "10px" }}
-                    />
-                  ) : (
-                    <FontAwesomeIcon
-                      icon={faUser} //replace with image
-                      // style={{ marginRight: "10px" }}
-                    />
-                  )}
-                </Avatar>
+                {querySymptoms.length > 0 && (
+                  <SymptomsOverview
+                    querySymptoms={querySymptoms}
+                    handleSendMessage={handleSendMessage}
+                  />
+                )}
 
-                <Card
-                  sx={{
-                    marginBottom: 2,
-                    bgcolor: message.sender === "bot" ? "#374151" : "#05445E",
-                    color: "white",
-                    maxWidth: 500,
-                    height: "auto", // Adjust the height as needed
-                    maxHeight: 200, // Maximum height before scroll appears
-                    borderRadius: 4,
-                    overflowY: "auto",
-                    boxShadow: 5,
+                {(selectedChatHistory.length < 1
+                  ? messages
+                  : selectedChatHistory
+                ).map((message, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      flexDirection:
+                        message.sender === "bot" ? "row-reverse" : "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Avatar
+                      sx={{
+                        marginRight: 1,
+                        boxShadow: 5,
+                        marginLeft: 1,
+                        backgroundColor: "#212121",
+                      }}
+                      alt="Avatar"
+                    >
+                      {message.sender === "bot" ? (
+                        <FontAwesomeIcon
+                          icon={faRobot}
+                          // style={{ marginRight: "10px" }}
+                        />
+                      ) : (
+                        <FontAwesomeIcon
+                          icon={faUser} //replace with image
+                          // style={{ marginRight: "10px" }}
+                        />
+                      )}
+                    </Avatar>
+
+                    <Card
+                      sx={{
+                        marginBottom: 2,
+                        bgcolor:
+                          message.sender === "bot" ? "#374151" : "#05445E",
+                        color: "white",
+                        maxWidth: 500,
+                        height: "auto", // Adjust the height as needed
+                        maxHeight: 200, // Maximum height before scroll appears
+                        borderRadius: 4,
+                        overflowY: "auto",
+                        boxShadow: 5,
+                      }}
+                    >
+                      <CardContent>
+                        {message.sender === "user" ? (
+                          <div
+                            style={{
+                              maxWidth: "100%",
+                              overflowWrap: "break-word",
+                              position: "relative",
+                            }}
+                          >
+                            <span>{message.text}</span>
+                            <br />
+                            <br />
+                            <span
+                              style={{
+                                position: "absolute",
+                                bottom: 0,
+                                right: 0,
+                                fontSize: "smaller",
+                              }}
+                            >
+                              {getCurrentTime()}
+                            </span>
+                          </div>
+                        ) : (
+                          <div
+                            style={{
+                              maxWidth: "100%",
+                              overflowWrap: "break-word",
+                              position: "relative",
+                            }}
+                          >
+                            <strong>name:</strong> {message.name}
+                            <br />
+                            <strong>description:</strong> {message.description}
+                            <br />
+                            <strong>diagnosis:</strong> {message.diagnosis}
+                            <br />
+                            <a
+                              href={`${message.link}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <u>learn more</u>
+                            </a>
+                            <br />
+                            <span
+                              style={{
+                                position: "absolute",
+                                bottom: 0,
+                                right: 0,
+                                fontSize: "smaller",
+                              }}
+                            >
+                              {getCurrentTime()}
+                            </span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
+              </Paper>
+              <div style={{ marginTop: "5px", display: "flex" }}>
+                <Autocomplete
+                  fullWidth
+                  disablePortal
+                  clearOnBlur
+                  id="combo-box-demo"
+                  options={symptoms}
+                  sx={{ width: "100%", backgroundColor: "white" }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Symptoms" fullWidth />
+                  )}
+                  onChange={(event, value) => {
+                    setInputText(value);
+                    setQuerySymptoms([...querySymptoms, value]);
                   }}
-                >
-                  <CardContent>
-                    {message.sender === "user" ? (
-                      <div
-                        style={{
-                          maxWidth: "100%",
-                          overflowWrap: "break-word",
-                          position: "relative",
-                        }}
-                      >
-                        <span>{message.text}</span>
-                        <br />
-                        <br />
-                        <span
-                          style={{
-                            position: "absolute",
-                            bottom: 0,
-                            right: 0,
-                            fontSize: "smaller",
-                          }}
-                        >
-                          {getCurrentTime()}
-                        </span>
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          maxWidth: "100%",
-                          overflowWrap: "break-word",
-                          position: "relative",
-                        }}
-                      >
-                        <strong>name:</strong> {message.name}
-                        <br />
-                        <strong>description:</strong> {message.description}
-                        <br />
-                        <strong>diagnosis:</strong> {message.diagnosis}
-                        <br />
-                        <a
-                          href={`${message.link}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <u>learn more</u>
-                        </a>
-                        <br />
-                        <span
-                          style={{
-                            position: "absolute",
-                            bottom: 0,
-                            right: 0,
-                            fontSize: "smaller",
-                          }}
-                        >
-                          {getCurrentTime()}
-                        </span>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </Paper>
-          <div style={{ marginTop: "5px", display: "flex" }}>
-            <Autocomplete
-              fullWidth
-              disablePortal
-              clearOnBlur
-              id="combo-box-demo"
-              options={symptoms}
-              sx={{ width: "100%", backgroundColor: "white" }}
-              renderInput={(params) => (
-                <TextField {...params} label="Symptoms" fullWidth />
-              )}
-              onChange={(event, value) => {
-                setInputText(value);
-                setQuerySymptoms([...querySymptoms, value]);
-              }}
-            />
-            {/* <IconButton color="primary" onClick={handleSendMessage}>
+                />
+                {/* <IconButton color="primary" onClick={handleSendMessage}>
               <FontAwesomeIcon icon={faPaperPlane} size="2x" />
             </IconButton> */}
-          </div>
+              </div>
+            </>
+          ) : (
+            <HistoryTable history={history} setShowHistory={setShowHistory} />
+          )}
         </Grid>
       </Grid>
     </Container>

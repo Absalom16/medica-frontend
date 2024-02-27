@@ -30,6 +30,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { setAuthDetails } from "../store/userSlice";
 import { saveChatHistory } from "../utilities/helpers";
+import { clearChatHistory } from "../store/chatHistorySlice";
 
 function PageNav() {
   const { email, username, isLoggedIn } = useSelector(
@@ -61,6 +62,7 @@ function PageNav() {
   };
 
   const logout = () => {
+    if (isDrawerOpen) handleDrawerClose();
     dispatch(
       setAuthDetails({
         username: "",
@@ -74,6 +76,9 @@ function PageNav() {
       console.log(data);
     });
     setAnchorEl(null); // Close menu
+    setTimeout(() => {
+      dispatch(clearChatHistory());
+    }, 100);
   };
 
   return (
@@ -212,7 +217,7 @@ function PageNav() {
               </ListItem>
             )}
             {isLoggedIn && (
-              <ListItem button onClick={handleDrawerClose}>
+              <ListItem button onClick={logout}>
                 <ListItemText>Logout</ListItemText>
               </ListItem>
             )}
