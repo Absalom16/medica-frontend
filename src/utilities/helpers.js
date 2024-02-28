@@ -46,6 +46,7 @@ export function diagnose(data, callback) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${data.token}`,
     },
     body: JSON.stringify(data),
   })
@@ -79,11 +80,6 @@ export function getSymptoms(callback) {
     });
 }
 
-//function to fetch chat history from server
-export function fetchHistory(data) {
-  console.log(data);
-}
-
 //function to get current time
 export function getCurrentTime() {
   const now = new Date();
@@ -94,11 +90,33 @@ export function getCurrentTime() {
 }
 
 //function to send chat history to server
-export function saveChatHistory(data, callback) {
+export function saveChatHistory(data) {
   fetch(`${url}/saveHistory`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${data.token}`,
+    },
+    body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((result) => {
+      return result;
+    })
+    .catch((err) => {
+      console.error("Error", err);
+    });
+}
+
+//function to retrieve chat history from server
+export function getChatHistory(data, callback) {
+  fetch(`${url}/getHistory`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${data.token}`,
     },
     body: JSON.stringify(data),
   })
@@ -113,9 +131,8 @@ export function saveChatHistory(data, callback) {
     });
 }
 
-//function to retrieve chat history from server
-export function getChatHistory(data, callback) {
-  fetch(`${url}/getHistory`, {
+export function getNewAccessToken(data, callback) {
+  fetch(`${url}/auth/refreshToken`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

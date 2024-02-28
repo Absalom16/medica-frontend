@@ -48,7 +48,7 @@ function ChatPage() {
   const [history, setHistory] = useState([]);
   const chatContainerRef = useRef(null);
 
-  const { email } = useSelector((store) => store.user.authDetails);
+  const { email, token } = useSelector((store) => store.user.authDetails);
   const chatHistory = useSelector((store) => store.chatHistory.currentChats);
   const selectedChatHistory = useSelector(
     (store) => store.chatHistory.historyChats
@@ -78,6 +78,7 @@ function ChatPage() {
       {
         email: email,
         symptoms: querySymptoms,
+        token: token,
       },
       (data) => {
         const result = data.payload.closeMatch;
@@ -109,9 +110,12 @@ function ChatPage() {
   //function to save chats incase of a page reload
   useEffect(() => {
     const handleBeforeUnload = (event) => {
-      saveChatHistory({ email: email, chats: chatHistory }, (data) => {
-        console.log(data);
-      });
+      saveChatHistory(
+        { email: email, chats: chatHistory, token: token },
+        (data) => {
+          console.log(data);
+        }
+      );
 
       setTimeout(() => {
         dispatch(clearChatHistory());
@@ -127,15 +131,13 @@ function ChatPage() {
       // Cleanup: remove the event listener when the component unmounts
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [email, chatHistory, dispatch]); // Include email and chatHistory in the dependency array
+  }, [email, chatHistory, dispatch, token]); // Include email and chatHistory in the dependency array
 
   //function to handle new chat
   const handleNewChat = () => {
     setMessages([]);
 
-    saveChatHistory({ email: email, chats: chatHistory }, (data) => {
-      console.log(data);
-    });
+    saveChatHistory({ email: email, chats: chatHistory, token: token });
 
     setShowHistory(false);
     dispatch(deleteHistoryChat());
@@ -149,13 +151,13 @@ function ChatPage() {
 
   //function to handle history
   const handleHistory = () => {
-    getChatHistory({ email: email }, (data) => {
+    getChatHistory({ email: email, token: token }, (data) => {
       setShowHistory(true);
       setHistory(data);
     });
     setIsDrawerOpen(false);
 
-    // saveChatHistory({ email: email, chats: chatHistory }, (data) => {
+    // saveChatHistory({ email: email, chats: chatHistory, token: token }, (data) => {
     //   console.log(data);
     // });
 

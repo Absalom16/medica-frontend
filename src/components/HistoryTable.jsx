@@ -39,8 +39,16 @@ export default function HistoryTable({ history, setShowHistory }) {
   const dispatch = useDispatch();
 
   history.message.forEach((item) => {
+    const newTime = item.time.split("T");
+
+    const updatedTime = newTime[1].split(":");
+
+    const refinedTime = `${newTime[0]} -- ${Number(updatedTime[0]) + 3}:${
+      updatedTime[1]
+    }:${updatedTime[2]}`;
+
     const historyItem = createData(
-      `${item.time.replaceAll("T", " ").replaceAll("000Z", "")}`,
+      `${refinedTime.replaceAll("000Z", "")}`,
       `${JSON.parse(item.chats).length} messages`,
       `${"open"}`
     );
@@ -86,39 +94,45 @@ export default function HistoryTable({ history, setShowHistory }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                    {columns.map((column) => {
-                      const value = row.item[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {column.id === "open" ? (
-                            <Button
-                              variant="contained"
-                              style={{
-                                backgroundColor: "#05445E",
-                                color: "white",
-                              }}
-                              onClick={() => {
-                                handleOpenHistory(row.historyData);
-                              }}
-                            >
-                              {value}
-                            </Button>
-                          ) : column.format && typeof value === "number" ? (
-                            column.format(value)
-                          ) : (
-                            value
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
+            {rows.length > 0 ? (
+              rows
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => {
+                  return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                      {columns.map((column) => {
+                        const value = row.item[column.id];
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            {column.id === "open" ? (
+                              <Button
+                                variant="contained"
+                                style={{
+                                  backgroundColor: "#05445E",
+                                  color: "white",
+                                }}
+                                onClick={() => {
+                                  handleOpenHistory(row.historyData);
+                                }}
+                              >
+                                {value}
+                              </Button>
+                            ) : column.format && typeof value === "number" ? (
+                              column.format(value)
+                            ) : (
+                              value
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })
+            ) : (
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <h3>No history yet!</h3>
+              </div>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

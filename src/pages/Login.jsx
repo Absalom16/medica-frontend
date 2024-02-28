@@ -8,9 +8,9 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { login } from "../utilities/helpers";
-import { useDispatch } from "react-redux";
-import { setAuthDetails } from "../store/userSlice";
+import { getNewAccessToken, login } from "../utilities/helpers";
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthDetails, setNewAccessToken } from "../store/userSlice";
 import { FadeLoader } from "react-spinners";
 
 const Login = () => {
@@ -22,6 +22,11 @@ const Login = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {
+    refreshToken,
+    isLoggedIn,
+    email: userEmail,
+  } = useSelector((store) => store.user.authDetails);
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -58,17 +63,40 @@ const Login = () => {
             username: data.user.username,
             email: data.user.email,
             token: data.accessToken,
+            refreshToken: data.refreshToken,
             isLoggedIn: true,
           })
         );
+
         navigate("/chat");
-      } else if (data.status === 403) {
-        setServerError(data.message);
-      } else if (data.status === 500) {
+      } else if (data.status === 403 || data.status === 500) {
         setServerError(data.message);
       }
     });
   };
+
+  // Use useEffect to fetch a new access token after expiry of the current token
+  useEffect(() => {
+    let refreshTokenInterval;
+    if (isLoggedIn) {
+      refreshTokenInterval = setInterval(() => {
+        getNewAccessToken(
+          {
+            refreshToken: refreshToken,
+            email: userEmail,
+          },
+          (result) => {
+            dispatch(setNewAccessToken(result.newAccessToken));
+          }
+        );
+      }, 3540000); // fetch after 59 minutes--token expires in 60 minutes
+    }
+
+    // Clear the interval when the component unmounts or when isLoggedIn becomes false
+    return () => {
+      clearInterval(refreshTokenInterval);
+    };
+  }, [refreshToken, isLoggedIn, email, dispatch]);
 
   // Rerender the page when serverError changes
   useEffect(() => {

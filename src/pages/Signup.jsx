@@ -93,7 +93,7 @@ export default function Signup() {
                     name="username"
                     autoComplete="username"
                     autoFocus
-                    error={errors.username}
+                    error={!!errors.username}
                     helperText={errors.username}
                     onChange={(e) => {
                       setUsername(e.target.value);
@@ -112,7 +112,7 @@ export default function Signup() {
                     label="Email Address"
                     name="email"
                     autoComplete="email"
-                    error={errors.email}
+                    error={!!errors.email}
                     helperText={errors.email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -132,7 +132,7 @@ export default function Signup() {
                     type="password"
                     id="password"
                     autoComplete="new-password"
-                    error={errors.password}
+                    error={!!errors.password}
                     helperText={errors.password}
                     onChange={(e) => {
                       setPassword(e.target.value);

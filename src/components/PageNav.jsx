@@ -25,7 +25,6 @@ import {
   faSignIn,
   faBars,
   faSignOut,
-  faCogs,
 } from "@fortawesome/free-solid-svg-icons";
 import { useSelector, useDispatch } from "react-redux";
 import { setAuthDetails } from "../store/userSlice";
@@ -33,7 +32,7 @@ import { saveChatHistory } from "../utilities/helpers";
 import { clearChatHistory } from "../store/chatHistorySlice";
 
 function PageNav() {
-  const { email, username, isLoggedIn } = useSelector(
+  const { email, username, isLoggedIn, token } = useSelector(
     (store) => store.user.authDetails
   );
   const chatHistory = useSelector((store) => store.chatHistory.currentChats);
@@ -72,9 +71,12 @@ function PageNav() {
       })
     );
 
-    saveChatHistory({ email: email, chats: chatHistory }, (data) => {
-      console.log(data);
-    });
+    saveChatHistory(
+      { email: email, chats: chatHistory, token: token },
+      (data) => {
+        console.log(data);
+      }
+    );
     setAnchorEl(null); // Close menu
     setTimeout(() => {
       dispatch(clearChatHistory());
@@ -173,9 +175,6 @@ function PageNav() {
                     },
                   }}
                 >
-                  <MenuItem onClick={handleClose}>
-                    <FontAwesomeIcon icon={faCogs} /> Settings
-                  </MenuItem>
                   <MenuItem onClick={logout}>
                     <FontAwesomeIcon icon={faSignOut} /> Logout
                   </MenuItem>
@@ -211,11 +210,7 @@ function PageNav() {
                 </ListItemText>
               </ListItem>
             )}
-            {isLoggedIn && (
-              <ListItem button onClick={handleDrawerClose}>
-                <ListItemText>Settings</ListItemText>
-              </ListItem>
-            )}
+
             {isLoggedIn && (
               <ListItem button onClick={logout}>
                 <ListItemText>Logout</ListItemText>

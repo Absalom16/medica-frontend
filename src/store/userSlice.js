@@ -7,6 +7,7 @@ const initialState = {
     username: "",
     email: "",
     token: "",
+    refreshToken: "",
     isLoggedIn: false,
   },
 
@@ -37,10 +38,18 @@ const userSlice = createSlice({
     setAuthDetails(state, action) {
       state.authDetails = action.payload;
     },
+    setNewAccessToken(state, action) {
+      state.authDetails.token = action.payload;
+      console.log(state.authDetails);
+    },
   },
 });
 
-export const { setSignUpDetails, setLoginDetails, setAuthDetails } =
-  userSlice.actions;
+export const {
+  setSignUpDetails,
+  setLoginDetails,
+  setAuthDetails,
+  setNewAccessToken,
+} = userSlice.actions;
 
 export default userSlice.reducer;
