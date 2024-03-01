@@ -1,4 +1,4 @@
-const url = "http://localhost:8000/api";
+const url = "https://medica-backend.onrender.com/api"; //http://localhost:8000/api
 
 //function to sign up users
 export function signup(data, callback) {

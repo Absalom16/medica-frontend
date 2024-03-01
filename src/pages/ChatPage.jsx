@@ -1,27 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  Container,
-  Paper,
-  TextField,
-  Grid,
-  Card,
-  CardContent,
-  Avatar,
-  Autocomplete,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  Hidden,
-  Fab,
-} from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faRobot,
-  faUser,
-  faArrowAltCircleRight,
-} from "@fortawesome/free-solid-svg-icons";
-import Sidebar from "../components/sidebar";
+import { Container, Grid } from "@mui/material";
+
 import {
   diagnose,
   getChatHistory,
@@ -29,8 +8,9 @@ import {
   getSymptoms,
   saveChatHistory,
 } from "../utilities/helpers";
-import SymptomsOverview from "../components/SymptomsOverview";
-import HistoryTable from "../components/HistoryTable";
+
+import GridItemOne from "../components/GridItemOne";
+import GridItemTwo from "../components/GridItemTwo";
 import { useSelector, useDispatch } from "react-redux";
 import {
   clearChatHistory,
@@ -46,6 +26,8 @@ function ChatPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State for drawer
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const chatContainerRef = useRef(null);
 
   const { email, token } = useSelector((store) => store.user.authDetails);
@@ -64,6 +46,7 @@ function ChatPage() {
 
   const handleSendMessage = () => {
     if (inputText.trim() === "") return;
+    setLoading(true);
     const newMessage = {
       text: querySymptoms.join(", "),
       sender: "user",
@@ -92,6 +75,7 @@ function ChatPage() {
           time: getCurrentTime(),
         };
         setMessages([...messages, newMessage, serverMessage]);
+        setLoading(false);
         dispatch(saveCurrentChats([...messages, newMessage, serverMessage]));
       }
     );
@@ -151,9 +135,11 @@ function ChatPage() {
 
   //function to handle history
   const handleHistory = () => {
+    setHistoryLoading(true);
     getChatHistory({ email: email, token: token }, (data) => {
       setShowHistory(true);
       setHistory(data);
+      setHistoryLoading(false);
     });
     setIsDrawerOpen(false);
 
@@ -174,207 +160,29 @@ function ChatPage() {
           xs={3}
           style={{ display: "flex", flexDirection: "column", boxShadow: 20 }}
         >
-          {/*menu icon for small screens */}
-          <Fab
-            onClick={() => setIsDrawerOpen(true)}
-            sx={{ display: { md: "none" } }} // Hide for medium screens and up
-            style={{
-              position: "fixed",
-              top: "70px",
-              left: "1px",
-              backgroundColor: "#212121",
-              color: "white",
-              boxShadow: 24,
-            }}
-            size="small"
-          >
-            <FontAwesomeIcon icon={faArrowAltCircleRight} />
-          </Fab>
-
-          {/* Drawer for small screens */}
-          <Drawer
-            anchor="left"
-            open={isDrawerOpen}
-            onClose={() => setIsDrawerOpen(false)} // Close drawer on outside click
-          >
-            {/* Drawer content */}
-            <List>
-              <ListItem button onClick={handleNewChat}>
-                <ListItemText>New chat</ListItemText>
-              </ListItem>
-              <ListItem button onClick={handleHistory}>
-                <ListItemText>History</ListItemText>
-              </ListItem>
-              {/* Add more items as needed */}
-            </List>
-          </Drawer>
-          {/* Sidebar for large screens */}
-          <Hidden mdDown>
-            <Sidebar
-              handleNewChat={handleNewChat}
-              handleHistory={handleHistory}
-            />
-          </Hidden>
+          <GridItemOne
+            setIsDrawerOpen={setIsDrawerOpen}
+            isDrawerOpen={isDrawerOpen}
+            handleNewChat={handleNewChat}
+            handleHistory={handleHistory}
+          />
         </Grid>
         <Grid item xs={12} md={9}>
-          {!showHistory ? (
-            <>
-              <Paper
-                ref={chatContainerRef}
-                style={{
-                  height: "70vh",
-                  overflowY: "auto",
-                  bgcolor: "#e7e5e4",
-                  scrollbarWidth: "none",
-                  /* Optional: for Firefox */
-                  "::WebkitScrollbar": {
-                    display: "none",
-                  },
-                  backgroundColor: "#F8FAFD",
-                }}
-              >
-                {querySymptoms.length > 0 && (
-                  <SymptomsOverview
-                    querySymptoms={querySymptoms}
-                    handleSendMessage={handleSendMessage}
-                  />
-                )}
-
-                {(selectedChatHistory.length < 1
-                  ? messages
-                  : selectedChatHistory
-                ).map((message, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      flexDirection:
-                        message.sender === "bot" ? "row-reverse" : "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Avatar
-                      sx={{
-                        marginRight: 1,
-                        boxShadow: 5,
-                        marginLeft: 1,
-                        backgroundColor: "#212121",
-                      }}
-                      alt="Avatar"
-                    >
-                      {message.sender === "bot" ? (
-                        <FontAwesomeIcon
-                          icon={faRobot}
-                          // style={{ marginRight: "10px" }}
-                        />
-                      ) : (
-                        <FontAwesomeIcon
-                          icon={faUser} //replace with image
-                          // style={{ marginRight: "10px" }}
-                        />
-                      )}
-                    </Avatar>
-
-                    <Card
-                      sx={{
-                        marginBottom: 2,
-                        bgcolor:
-                          message.sender === "bot" ? "#374151" : "#05445E",
-                        color: "white",
-                        maxWidth: 500,
-                        height: "auto", // Adjust the height as needed
-                        maxHeight: 200, // Maximum height before scroll appears
-                        borderRadius: 4,
-                        overflowY: "auto",
-                        boxShadow: 5,
-                      }}
-                    >
-                      <CardContent>
-                        {message.sender === "user" ? (
-                          <div
-                            style={{
-                              maxWidth: "100%",
-                              overflowWrap: "break-word",
-                              position: "relative",
-                            }}
-                          >
-                            <span>{message.text}</span>
-                            <br />
-                            <br />
-                            <span
-                              style={{
-                                position: "absolute",
-                                bottom: 0,
-                                right: 0,
-                                fontSize: "smaller",
-                              }}
-                            >
-                              {getCurrentTime()}
-                            </span>
-                          </div>
-                        ) : (
-                          <div
-                            style={{
-                              maxWidth: "100%",
-                              overflowWrap: "break-word",
-                              position: "relative",
-                            }}
-                          >
-                            <strong>name:</strong> {message.name}
-                            <br />
-                            <strong>description:</strong> {message.description}
-                            <br />
-                            <strong>diagnosis:</strong> {message.diagnosis}
-                            <br />
-                            <a
-                              href={`${message.link}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <u>learn more</u>
-                            </a>
-                            <br />
-                            <span
-                              style={{
-                                position: "absolute",
-                                bottom: 0,
-                                right: 0,
-                                fontSize: "smaller",
-                              }}
-                            >
-                              {message.time}
-                            </span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
-              </Paper>
-              <div style={{ marginTop: "5px", display: "flex" }}>
-                <Autocomplete
-                  fullWidth
-                  disablePortal
-                  clearOnBlur
-                  id="combo-box-demo"
-                  options={symptoms}
-                  sx={{ width: "100%", backgroundColor: "white" }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Symptoms" fullWidth />
-                  )}
-                  onChange={(event, value) => {
-                    setInputText(value);
-                    setQuerySymptoms([...querySymptoms, value]);
-                  }}
-                />
-                {/* <IconButton color="primary" onClick={handleSendMessage}>
-              <FontAwesomeIcon icon={faPaperPlane} size="2x" />
-            </IconButton> */}
-              </div>
-            </>
-          ) : (
-            <HistoryTable history={history} setShowHistory={setShowHistory} />
-          )}
+          <GridItemTwo
+            showHistory={showHistory}
+            chatContainerRef={chatContainerRef}
+            historyLoading={historyLoading}
+            querySymptoms={querySymptoms}
+            handleSendMessage={handleSendMessage}
+            selectedChatHistory={selectedChatHistory}
+            messages={messages}
+            symptoms={symptoms}
+            loading={loading}
+            setInputText={setInputText}
+            setQuerySymptoms={setQuerySymptoms}
+            setShowHistory={setShowHistory}
+            history={history}
+          />
         </Grid>
       </Grid>
     </Container>

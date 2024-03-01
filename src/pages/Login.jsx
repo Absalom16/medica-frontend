@@ -96,7 +96,7 @@ const Login = () => {
     return () => {
       clearInterval(refreshTokenInterval);
     };
-  }, [refreshToken, isLoggedIn, email, dispatch]);
+  }, [refreshToken, isLoggedIn, email, dispatch, userEmail]);
 
   // Rerender the page when serverError changes
   useEffect(() => {

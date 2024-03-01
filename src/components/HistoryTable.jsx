@@ -39,22 +39,22 @@ export default function HistoryTable({ history, setShowHistory }) {
   const dispatch = useDispatch();
 
   history.message.forEach((item) => {
-    const newTime = item.time.split("T");
+    const newTime = item.time.replace(" ", " -- ");
 
-    const updatedTime = newTime[1].split(":");
+    // const updatedTime = newTime[1].split(":");
 
-    const refinedTime = `${newTime[0]} -- ${Number(updatedTime[0]) + 3}:${
-      updatedTime[1]
-    }:${updatedTime[2]}`;
+    // const refinedTime = `${newTime[0]} -- ${Number(updatedTime[0]) + 3}:${
+    //   updatedTime[1]
+    // }:${updatedTime[2]}`;
 
     const historyItem = createData(
-      `${refinedTime.replaceAll("000Z", "")}`,
+      `${newTime}`,
       `${JSON.parse(item.chats).length} messages`,
       `${"open"}`
     );
 
-    if (!newRows.find((el) => el.id === item.id)) {
-      newRows.push({ id: item.id, item: historyItem, historyData: item });
+    if (!newRows.find((el) => el.id === item._id)) {
+      newRows.push({ id: item._id, item: historyItem, historyData: item });
     } else {
       return;
     }
@@ -82,9 +82,9 @@ export default function HistoryTable({ history, setShowHistory }) {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {columns.map((column, index) => (
                 <TableCell
-                  key={column.id}
+                  key={index}
                   align={column.align}
                   style={{ minWidth: column.minWidth }}
                 >
@@ -97,13 +97,13 @@ export default function HistoryTable({ history, setShowHistory }) {
             {rows.length > 0 ? (
               rows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => {
+                .map((row, index) => {
                   return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      {columns.map((column) => {
+                    <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                      {columns.map((column, index) => {
                         const value = row.item[column.id];
                         return (
-                          <TableCell key={column.id} align={column.align}>
+                          <TableCell key={index} align={column.align}>
                             {column.id === "open" ? (
                               <Button
                                 variant="contained"
