@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect} from "react";
 import { Container, Grid, Alert } from "@mui/material";
 
 import {
@@ -28,7 +28,7 @@ function ChatPage() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
-  const chatContainerRef = useRef(null);
+ 
   const [openAlert, setOpenAlert] = useState(true);
 
   const { email, token } = useSelector((store) => store.user.authDetails);
@@ -43,10 +43,10 @@ function ChatPage() {
     getSymptoms((data) => {
       const refinedSymptoms = [];
       data.payload.forEach((el) => {
+        el.replace(",", "").replace(".", "");
         if (refinedSymptoms.includes(el)) {
           return;
         } else {
-          el.replace(",", "");
           refinedSymptoms.push(el);
         }
       });
@@ -81,6 +81,7 @@ function ChatPage() {
           diagnosis: result.item.diagnosis,
           medication: result.item.medication,
           link: result.item.link,
+          accuracy: result.accuracy,
           sender: "bot",
           time: getCurrentTime(),
         };
@@ -91,15 +92,7 @@ function ChatPage() {
     );
   };
 
-  // Scroll to the bottom of the chat container
-  const scrollToBottom = () => {
-    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-  };
-
-  // Add a new message and scroll to bottom when messages change
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  
 
   //function to save chats incase of a page reload
   useEffect(() => {
@@ -204,14 +197,15 @@ function ChatPage() {
                     zIndex: 1,
                   }}
                 >
-                  Select symptoms from the drop-down list provided below and send.
+                  Select symptoms from the drop-down list provided below and
+                  send.
                 </Alert>
               </div>
             )}
           </div>
           <GridItemTwo
             showHistory={showHistory}
-            chatContainerRef={chatContainerRef}
+            
             historyLoading={historyLoading}
             querySymptoms={querySymptoms}
             handleSendMessage={handleSendMessage}

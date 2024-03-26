@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   Paper,
   TextField,
@@ -15,7 +16,6 @@ import { getCurrentTime } from "../utilities/helpers";
 
 export default function GridItemTwo({
   showHistory,
-  chatContainerRef,
   historyLoading,
   querySymptoms,
   handleSendMessage,
@@ -28,10 +28,22 @@ export default function GridItemTwo({
   setShowHistory,
   history,
 }) {
+  const chatContainerRef = useRef(null);
+
+  // Scroll to the bottom of the chat container
+  const scrollToBottom = () => {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  };
+
+  // Add a new message and scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div>
       {!showHistory ? (
-        <span ref={chatContainerRef}>
+        <span>
           {!historyLoading ? (
             <>
               <Paper
@@ -47,6 +59,7 @@ export default function GridItemTwo({
                   backgroundColor: "#F8FAFD",
                   paddingTop: "3%",
                 }}
+                ref={chatContainerRef}
               >
                 {querySymptoms.length > 0 && (
                   <SymptomsOverview
@@ -140,6 +153,8 @@ export default function GridItemTwo({
                             <strong>description:</strong> {message.description}
                             <br />
                             <strong>diagnosis:</strong> {message.diagnosis}
+                            <br />
+                            <strong>accuracy:</strong> {`${message.accuracy}%`}
                             <br />
                             <a
                               href={`${message.link}`}
