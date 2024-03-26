@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Container, Grid } from "@mui/material";
+import { Container, Grid, Alert } from "@mui/material";
 
 import {
   diagnose,
@@ -29,6 +29,7 @@ function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const chatContainerRef = useRef(null);
+  const [openAlert, setOpenAlert] = useState(true);
 
   const { email, token } = useSelector((store) => store.user.authDetails);
   const chatHistory = useSelector((store) => store.chatHistory.currentChats);
@@ -40,7 +41,16 @@ function ChatPage() {
   //fetching all available symptoms from server
   useEffect(() => {
     getSymptoms((data) => {
-      setSymptoms(data.payload);
+      const refinedSymptoms = [];
+      data.payload.forEach((el) => {
+        if (refinedSymptoms.includes(el)) {
+          return;
+        } else {
+          el.replace(",", "");
+          refinedSymptoms.push(el);
+        }
+      });
+      setSymptoms(refinedSymptoms);
     });
   }, []);
 
@@ -152,6 +162,10 @@ function ChatPage() {
     // }, 100);
   };
 
+  const handleCloseAlert = () => {
+    setOpenAlert(false);
+  };
+
   return (
     <Container maxWidth="lg" style={{ paddingTop: "10px" }}>
       <Grid container spacing={2}>
@@ -168,6 +182,33 @@ function ChatPage() {
           />
         </Grid>
         <Grid item xs={12} md={9}>
+          <div
+            style={{
+              position: "absolute",
+              top: "10%",
+              left: "40%",
+              right: "0%",
+            }}
+          >
+            {openAlert && (
+              <div
+                style={{
+                  display: "flex",
+                }}
+              >
+                <Alert
+                  severity="info"
+                  onClose={handleCloseAlert}
+                  sx={{
+                    textAlign: "center",
+                    zIndex: 1,
+                  }}
+                >
+                  Select symptoms from the drop-down list provided below and send.
+                </Alert>
+              </div>
+            )}
+          </div>
           <GridItemTwo
             showHistory={showHistory}
             chatContainerRef={chatContainerRef}

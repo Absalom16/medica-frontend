@@ -26,7 +26,7 @@ export default function GridItemTwo({
   setInputText,
   setQuerySymptoms,
   setShowHistory,
-  history
+  history,
 }) {
   return (
     <div>
@@ -45,6 +45,7 @@ export default function GridItemTwo({
                     display: "none",
                   },
                   backgroundColor: "#F8FAFD",
+                  paddingTop: "3%",
                 }}
               >
                 {querySymptoms.length > 0 && (
